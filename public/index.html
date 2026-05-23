@@ -294,7 +294,7 @@ function renderDetail(){
     const levelsHTML=d.levels.map((lv,i)=>`<div class="level-row ${vals[i]?'done':''}" onclick="toggleLevel('${d.id}',${i})"><div class="level-check">${vals[i]?'✓':''}</div><span class="level-code">${String.fromCharCode(65+i)}</span><span class="level-text">${lv}</span></div>`).join('');
     return `<div class="disc-section"><div class="disc-hdr" onclick="toggleDisc(this)"><div class="disc-dot" style="background:${d.color}"></div><div class="disc-hdr-info"><div class="disc-hdr-name">${d.name}</div><div class="disc-hdr-sub">${done}/${total} niveles</div></div><div class="disc-pct" style="color:${d.color}">${p}%</div><div class="disc-chevron open">▼</div></div><div class="disc-prog"><div class="disc-prog-fill" style="width:${p}%;background:${d.color}"></div></div><div class="levels-list">${levelsHTML}</div></div>`;
   }).join('');
-  document.getElementById('detail-content').innerHTML=`<div class="student-hero"><div class="student-hero-top"><div class="big-avatar">${initials(s.name)}</div><div><div class="hero-name">${s.name}</div><div class="hero-sub">${allDone} de ${allTotal} niveles completados</div></div></div><div class="stat-row"><div class="stat-chip"><div class="stat-val" style="color:var(--accent)">${allPct}%</div><div class="stat-lbl">General</div></div><div class="stat-chip"><div class="stat-val" style="color:var(--done)">${allDone}</div><div class="stat-lbl">Logrados</div></div><div class="stat-chip"><div class="stat-val" style="color:var(--muted)">${allTotal-allDone}</div><div class="stat-lbl">Pendientes</div></div></div></div><div class="notes-section"><div class="notes-label">📝 Notas</div><textarea class="notes-ta" placeholder="Observaciones, equipamiento, próximos objetivos..." oninput="saveNotes(this.value)">${s.notes||''}</textarea></div>${discHTML}<button class="delete-btn" onclick="deleteStudent(${s.id})">🗑 Eliminar alumno</button>`;
+  document.getElementById('detail-content').innerHTML=`<div class="student-hero"><div class="student-hero-top"><div class="big-avatar">${initials(s.name)}</div><div style="flex:1"><div style="display:flex;align-items:center;gap:8px"><div class="hero-name">${s.name}</div><button onclick="renameStudent(${s.id})" style="background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--accent);font-size:12px;padding:4px 10px;cursor:pointer;font-family:'Syne',sans-serif;font-weight:700;flex-shrink:0">✏️ Editar</button></div><div class="hero-sub">${allDone} de ${allTotal} niveles completados</div></div></div><div class="stat-row"><div class="stat-chip"><div class="stat-val" style="color:var(--accent)">${allPct}%</div><div class="stat-lbl">General</div></div><div class="stat-chip"><div class="stat-val" style="color:var(--done)">${allDone}</div><div class="stat-lbl">Logrados</div></div><div class="stat-chip"><div class="stat-val" style="color:var(--muted)">${allTotal-allDone}</div><div class="stat-lbl">Pendientes</div></div></div></div><div class="notes-section"><div class="notes-label">📝 Notas</div><textarea class="notes-ta" placeholder="Observaciones, equipamiento, próximos objetivos..." oninput="saveNotes(this.value)">${s.notes||''}</textarea></div>${discHTML}<button class="delete-btn" onclick="deleteStudent(${s.id})">🗑 Eliminar alumno</button>`;
 }
 
 function toggleDisc(hdr){const list=hdr.parentElement.querySelector('.levels-list');const chev=hdr.querySelector('.disc-chevron');const prog=hdr.parentElement.querySelector('.disc-prog');const open=chev.classList.toggle('open');list.style.display=open?'':'none';prog.style.display=open?'':'none'}
@@ -303,17 +303,7 @@ function saveNotes(val){const s=students.find(x=>x.id===activeStudentId);s.notes
 function deleteStudent(id){if(!confirm('¿Eliminar este alumno?'))return;students=students.filter(s=>s.id!==id);save();goHome()}
 
 function renderConfig(){
-  // Students section
-  const studentsHTML = `<div class="students-config-section">
-    <div class="config-hdr" style="color:var(--muted)">ALUMNOS</div>
-    ${students.sort((a,b)=>a.name.localeCompare(b.name)).map(s=>`
-      <div class="student-config-row">
-        <div class="student-config-name">${s.name}</div>
-        <button class="edit-step-btn" onclick="renameStudent(${s.id})">Renombrar</button>
-      </div>`).join('')}
-  </div>`;
-
-  // Disciplines with up/down reorder buttons
+  // Disciplines only with up/down reorder buttons
   const disciplinesHTML = disciplines.map((d,di)=>`
     <div class="config-section">
       <div class="config-hdr" style="color:${d.color}">${d.name}</div>
@@ -329,7 +319,7 @@ function renderConfig(){
       <div class="add-step-row" onclick="addStep(${di})"><span>+</span><span>Agregar paso</span></div>
     </div>`).join('');
 
-  document.getElementById('config-content').innerHTML = studentsHTML + disciplinesHTML;
+  document.getElementById('config-content').innerHTML = disciplinesHTML;
 }
 
 function moveStep(di,li,dir){
@@ -358,7 +348,8 @@ function renameStudent(id){
     s.name=val;
     save();
     closeModal();
-    renderConfig();
+    document.getElementById('detail-title').textContent=val;
+    renderDetail();
     toast('Nombre actualizado');
   });
 }
