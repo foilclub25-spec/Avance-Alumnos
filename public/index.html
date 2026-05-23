@@ -254,8 +254,9 @@ function goHome(){showScreen('home');renderStudentList()}
 function goConfig(){showScreen('config');renderConfig()}
 
 function renderStudentList(){
-  const q=document.getElementById('search-input').value.toLowerCase();
-  const filtered=students.filter(s=>s.name.toLowerCase().includes(q)).sort((a,b)=>a.name.localeCompare(b.name));
+  const normalize=str=>str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
+  const q=normalize(document.getElementById('search-input').value);
+  const filtered=students.filter(s=>normalize(s.name).includes(q)).sort((a,b)=>a.name.localeCompare(b.name));
   const total=students.length;
   const avg=total?Math.round(students.reduce((a,s)=>a+overallPct(s),0)/total):0;
   document.getElementById('hero-sub').textContent=`${total} alumnos · promedio ${avg}% completado`;
