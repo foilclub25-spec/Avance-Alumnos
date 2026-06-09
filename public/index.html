@@ -316,11 +316,25 @@ function renderConfig(){
           </div>
           <div class="config-row-text"><div>${String.fromCharCode(65+li)}. ${lv}</div></div>
           <button class="edit-step-btn" onclick="editStep(${di},${li})">Editar</button>
+          <button class="edit-step-btn" onclick="deleteStep(${di},${li})" style="color:#ff6060;border-color:rgba(255,96,96,0.3)">🗑</button>
         </div>`).join('')}
       <div class="add-step-row" onclick="addStep(${di})"><span>+</span><span>Agregar paso</span></div>
     </div>`).join('');
 
   document.getElementById('config-content').innerHTML = disciplinesHTML;
+}
+
+function deleteStep(di,li){
+  const d=disciplines[di];
+  if(!confirm(`¿Eliminar el paso "${d.levels[li]}"? Esta acción no se puede deshacer.`))return;
+  d.levels.splice(li,1);
+  students.forEach(s=>{
+    const prog=s.progress[d.id];
+    if(prog) prog.splice(li,1);
+  });
+  save();
+  renderConfig();
+  toast('Paso eliminado');
 }
 
 function moveStep(di,li,dir){
